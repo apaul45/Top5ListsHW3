@@ -22,11 +22,26 @@ const ListSelector = () => {
         //if store isn't null, create a ListCard element for each list
         //the variable listCard then will contain all these ListCards to be rendered below
         listCard = store.idNamePairs.map((pair) => (
+            store.currentList? 
+            store.currentList._id === pair._id?
             <ListCard
                 key={pair._id}
                 idNamePair={pair}
-                selected={false}
-            />
+                selected={true}
+                editActive={store.listCreated}
+            /> :
+            <ListCard
+            key={pair._id}
+            idNamePair={pair}
+            selected={false}
+            editActive={store.listCreated}
+            /> :
+            <ListCard
+            key={pair._id}
+            idNamePair={pair}
+            selected={false}
+            editActive={store.listCreated}
+             /> 
         ))
     }
     return (

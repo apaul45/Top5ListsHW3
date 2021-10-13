@@ -10,7 +10,7 @@ import { GlobalStoreContext } from '../store'
 */
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
-    const [ editActive, setEditActive ] = useState(false);
+    const [ editActive, setEditActive ] = useState(props.editActive);
     const [ text, setText ] = useState("");
     store.history = useHistory();
     const { idNamePair, selected } = props;
@@ -99,7 +99,6 @@ function ListCard(props) {
                 value={"\u270E"}
             />
         </div>;
-
     if (editActive) {
         cardElement =
             <input
