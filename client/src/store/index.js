@@ -21,7 +21,8 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     SET_DELETE_LIST: "SET_DELETE_LIST",
     CREATE_NEW_LIST: "CREATE_NEW_LIST",
-    SET_ITEM_ACTIVE: "SET_ITEM_ACTIVE"
+    SET_ITEM_ACTIVE: "SET_ITEM_ACTIVE",
+    ENABLE_DISABLE_BLUR: "ENABLE_DISABLE_BLUR"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -40,7 +41,7 @@ export const useGlobalStore = () => {
         listMarkedForDeletion: null,
         listCreated: false,
         hasUndo: tps.hasTransactionToUndo(), 
-        hasRedo: tps.hasTransactionToRedo() 
+        hasRedo: tps.hasTransactionToRedo(),
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -59,7 +60,7 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -73,7 +74,7 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -96,11 +97,26 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             // UPDATE A LIST
             case GlobalStoreActionType.SET_CURRENT_LIST: {
+                // //Since item renaming uses this reducer, 
+                // //check if the payload is an array or not
+                // if (Array.isArray(payload)){
+                //     return setStore({
+                //         idNamePairs: store.idNamePairs,
+                //         currentList: payload,
+                //         newListCounter: store.newListCounter,
+                //         isListNameEditActive: false,
+                //         isItemEditActive: false,
+                //         listMarkedForDeletion: null,
+                //         listCreated: false,
+                //         hasUndo: tps.hasTransactionToUndo(), 
+                //         hasRedo: tps.hasTransactionToRedo(),
+                //     });
+                // }
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: payload,
@@ -110,7 +126,7 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             // START EDITING A LIST NAME
@@ -124,7 +140,7 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             //If a user clicked on a item, set itemEditActive to true
@@ -138,7 +154,7 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             case GlobalStoreActionType.SET_DELETE_LIST: {
@@ -151,7 +167,7 @@ export const useGlobalStore = () => {
                     isListNameEditActive: store.isListNameEditActive,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
             //If a new list is created, make sure to update the new list counter
@@ -167,9 +183,23 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null,
                     listCreated: true,
                     hasUndo: tps.hasTransactionToUndo(), 
-                    hasRedo: tps.hasTransactionToRedo() 
+                    hasRedo: tps.hasTransactionToRedo(),
                 });
             }
+            // case GlobalStoreActionType.ENABLE_DISABLE_BLUR: {
+            //     return setStore({
+            //         currentList: store.currList,
+            //         newListCounter: store.newListCounter,
+            //         idNamePairs: store.idNamePairs,
+            //         isListNameEditActive: store.isListNameEditActive,
+            //         isItemEditActive: store.isItemEditActive,
+            //         listMarkedForDeletion: store.listMarkedForDeletion,
+            //         listCreated: store.listCreated,
+            //         hasUndo: tps.hasTransactionToUndo(), 
+            //         hasRedo: tps.hasTransactionToRedo() ,
+            //         isBlur: payload
+            //     });
+            // }
             //Update the name of the current delete modal, so tht it shows in the modal
             default:
                 return store;
@@ -385,19 +415,34 @@ export const useGlobalStore = () => {
     }
     store.addChangeItemTransaction = function(id, newName){
         let oldText = store.currentList.items[id-1];
-        let transaction = new ChangeItemTransaction(store, id, oldText, newName);
-        tps.addTransaction(transaction);
+        //If the item name is the same, don't add a transaction to the stack
+        if (oldText === newName){
+            store.changeItemName(id, newName);
+        }
+        else{
+            let transaction = new ChangeItemTransaction(store, id, oldText, newName);
+            tps.addTransaction(transaction);
+        }
     }
     store.changeItemName = async function(id, newName) {
         store.currentList.items[id-1] = newName;
         const response = await api.updateTop5ListById(store.currentList._id, store.currentList);
         if (response.data.success){
+            //Make sure to update 
             storeReducer({
                 type: GlobalStoreActionType.SET_CURRENT_LIST,
                 payload: store.currentList
             });
         }
     }
+    // store.enableDisableBlur = function(newBool){
+    //     //Update the value of the blur flag, to be used in 
+    //     //onClick handlers of undo, redo, or close
+    //     storeReducer({
+    //         type: GlobalStoreActionType.ENABLE_DISABLE_BLUR,
+    //         payload: newBool
+    //     })
+    // }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
 }

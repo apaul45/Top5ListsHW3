@@ -12,7 +12,7 @@ function EditToolbar() {
     const history = useHistory();
 
     function handleUndo() {
-        if (!editStatus) {
+        if (!editStatus ) {
             store.undo();
         }
     }
@@ -27,7 +27,8 @@ function EditToolbar() {
             store.closeCurrentList();
         }
     }
-    let editStatus = store.isItemEditActive;
+    let editStatus = store.isItemEditActive || store.listNameActive;
+
     let disabled = "top5-button disabled"
     let enabled = "top5-button";
     return (

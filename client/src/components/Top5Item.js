@@ -11,7 +11,7 @@ function Top5Item(props) {
     const [draggedTo, setDraggedTo] = useState(0);
     //Like ListCard, have a sttae variable called editActive with its own setter
     const [editActive, setEditActive] = useState(false);
-    const [text, setText] = useState("");
+    const[text, setText] = useState(props.text);
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);
     }
@@ -55,16 +55,25 @@ function Top5Item(props) {
     }
     function handleKeyPress(event){
         if (event.code === "Enter") {
-            handleBlur();
+            store.addChangeItemTransaction(index+1, event.target.value);
+            toggleEdit();
+            setText(event.target.value);
         }
     }
-    function handleBlur(event){
-        store.addChangeItemTransaction(index+1, text);
-        toggleEdit();
-    } 
-    function handleUpdateText(event){
-        setText(event.target.value);
-    }
+    // function handleBlur(event){
+    //     //If handleKeyPress called onBlur, don't enable blur as a way of disabling all the
+    //     //toolbar buttons
+    //     if (event.code === "Enter"){
+    //         store.addChangeItemTransaction(index+1, text);
+    //     }
+    //     else{
+    //         //If user tries to press on any of the buttons when editing an item, 
+    //         //make sure that the buttons don;t do anything with the use of a blur flag
+    //         store.enableDisableBlur(true);
+    //         store.addChangeItemTransaction(index+1, text);
+    //     }
+    //     toggleEdit();
+    // } 
     let { index } = props;
     let itemClass = "top5-item";
     if (draggedTo) {
@@ -97,9 +106,7 @@ function Top5Item(props) {
                 className='top5-item'
                 type='text'
                 onKeyPress={handleKeyPress}
-                onBlur={handleBlur}
                 defaultValue={props.text}
-                onChange={handleUpdateText}
         />
     }
     return (
