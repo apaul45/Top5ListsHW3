@@ -17,7 +17,6 @@ const ListSelector = () => {
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
-
     let listCard = "";
     if (store) {
         //if store isn't null, create a ListCard element for each list
