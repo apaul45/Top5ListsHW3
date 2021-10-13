@@ -55,12 +55,11 @@ function Top5Item(props) {
     }
     function handleKeyPress(event){
         if (event.code === "Enter") {
-            handleBlur(event);
+            handleBlur();
         }
     }
     function handleBlur(event){
-        let id = event.target.id.substring("item-".length);
-        store.addChangeItemTransaction(id, text);
+        store.addChangeItemTransaction(index+1, text);
         toggleEdit();
     } 
     function handleUpdateText(event){
