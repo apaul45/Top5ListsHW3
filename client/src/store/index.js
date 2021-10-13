@@ -36,9 +36,11 @@ export const useGlobalStore = () => {
         currentList: null,
         newListCounter: 0,
         listNameActive: false,
-        itemActive: false,
+        isItemEditActive: false,
         listMarkedForDeletion: null,
-        listCreated: false
+        listCreated: false,
+        hasUndo: tps.hasTransactionToUndo(), 
+        hasRedo: tps.hasTransactionToRedo() 
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -55,7 +57,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             // STOP EDITING THE CURRENT LIST
@@ -67,7 +71,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -88,7 +94,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: store.isListNameEditActive,
                     isItemEditActive: store.isItemEditActive,
                     listMarkedForDeletion: store.listMarkedForDeletion,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             // UPDATE A LIST
@@ -100,7 +108,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             // START EDITING A LIST NAME
@@ -112,7 +122,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: true,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             //If a user clicked on a item, set itemEditActive to true
@@ -124,7 +136,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: true,
                     listMarkedForDeletion: null,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             case GlobalStoreActionType.SET_DELETE_LIST: {
@@ -135,7 +149,9 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: payload,
                     isItemEditActive: store.isItemEditActive,
                     isListNameEditActive: store.isListNameEditActive,
-                    listCreated: false
+                    listCreated: false,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             //If a new list is created, make sure to update the new list counter
@@ -149,7 +165,9 @@ export const useGlobalStore = () => {
                     isListNameEditActive: false,
                     isItemEditActive: false,
                     listMarkedForDeletion: null,
-                    listCreated: true
+                    listCreated: true,
+                    hasUndo: tps.hasTransactionToUndo(), 
+                    hasRedo: tps.hasTransactionToRedo() 
                 });
             }
             //Update the name of the current delete modal, so tht it shows in the modal
@@ -232,6 +250,8 @@ export const useGlobalStore = () => {
     }
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
+        //Make sure to clear the transaction stack upon a close
+        tps.clearAllTransactions();
         storeReducer({
             type: GlobalStoreActionType.CLOSE_CURRENT_LIST,
             payload: {}
