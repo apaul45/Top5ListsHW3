@@ -57,7 +57,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null,
+                    listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -71,7 +71,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null,
+                    listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -83,7 +83,11 @@ export const useGlobalStore = () => {
                 //current list, then make sure to not set currentList to null 
                 let isCurrent = null;
                 if (typeof payload.isCurrent !== 'undefined'){
-                    isCurrent = store.currentList;
+                    //If the current list is the one that is being deleted, then leave isCurrent as null
+                    //If not (isCurrent is false), then leave store.currentList as is
+                    if (!payload.isCurrent){
+                        isCurrent = store.currentList;
+                    }
                     //If .isCurrent exists, that means deleteMarkedList 
                     //called this type. So payload has to be set to .pairs to setStore
                     payload = payload.pairs;
@@ -94,7 +98,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: store.isListNameEditActive,
                     isItemEditActive: store.isItemEditActive,
-                    listMarkedForDeletion: store.listMarkedForDeletion,
+                    listMarkedForDeletion: null,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -123,7 +127,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null,
+                    listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -137,7 +141,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: true,
                     isItemEditActive: false,
-                    listMarkedForDeletion: null,
+                    listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -151,7 +155,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: true,
-                    listMarkedForDeletion: null,
+                    listMarkedForDeletion: store.listMarkedForDeletion,
                     listCreated: false,
                     hasUndo: tps.hasTransactionToUndo(), 
                     hasRedo: tps.hasTransactionToRedo(),
@@ -338,19 +342,29 @@ export const useGlobalStore = () => {
             if (store.listMarkedForDeletion && store.currentList){
                 isEqual = store.listMarkedForDeletion._id === store.currentList._id;
             }
-            let response = await api.deleteTop5ListById(store.listMarkedForDeletion._id).then(async function(){
-                    //Make sure the delete  modal is dismissed
-                    store.hideDeleteListModal();
-                    let response2 = await api.getTop5ListPairs().then(response2 => function(){
-                            let newPairs = response2.data.idNamePairs;
-                            storeReducer({
-                                type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
-                                payload: {pairs: newPairs, isCurrent: isEqual}
-                            });
-                        });
-                    });
-                }
+            const response = await api.deleteTop5ListById(store.listMarkedForDeletion._id).then(
+                (response) => {store.deleteMarkedList2(isEqual)},()=>store.deleteMarkedList2(isEqual));
+        }
         asyncDeleteMarkedList();
+    }
+    store.deleteMarkedList2 = function(isEqual){
+        async function asyncDeleteMarkedList2(){
+            let response = await api.getTop5ListPairs(). then((response) => {
+                store.hideDeleteListModal();
+                let newPairs = response.data.idNamePairs;
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: {pairs: newPairs, isCurrent: isEqual}
+                });
+            }).catch(()=>{
+                store.hideDeleteListModal();
+                let newPairs = store.idNamePairs.filter((pair) => pair._id !== store.listMarkedForDeletion._id);
+                storeReducer({
+                    type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
+                    payload: {pairs: newPairs, isCurrent: isEqual}
+                })});
+        }
+        asyncDeleteMarkedList2();
     }
     // THE FOLLOWING 8 FUNCTIONS ARE FOR COORDINATING THE UPDATING
     // OF A LIST, WHICH INCLUDES DEALING WITH THE TRANSACTION STACK. THE
