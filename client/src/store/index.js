@@ -225,6 +225,7 @@ export const useGlobalStore = () => {
                                 type: GlobalStoreActionType.CREATE_NEW_LIST,
                                 payload: {currList : top5List, pairs: pairs}
                             });
+                            store.history.push("/top5list/" + top5List._id);
                         }
             }
         }

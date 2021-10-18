@@ -28,19 +28,19 @@ const ListSelector = () => {
                 key={pair._id}
                 idNamePair={pair}
                 selected={true}
-                editActive={store.listCreated}
+                editActive={false}
             /> :
             <ListCard
             key={pair._id}
             idNamePair={pair}
             selected={false}
-            editActive={store.listCreated}
+            editActive={false}
             /> :
             <ListCard
             key={pair._id}
             idNamePair={pair}
             selected={false}
-            editActive={store.listCreated}
+            editActive={false}
              /> 
         ))
     }
