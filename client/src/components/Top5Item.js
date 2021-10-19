@@ -10,7 +10,7 @@ function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [draggedTo, setDraggedTo] = useState(0);
     //Like ListCard, have a sttae variable called editActive with its own setter
-    const [editActive, setEditActive] = useState(false);
+    const [editActive, setEditActive] = useState(/*store ? store.listCreated && store.isItemEditActive :*/ false);
     const[text, setText] = useState(props.text);
     function handleDragStart(event) {
         event.dataTransfer.setData("item", event.target.id);

@@ -183,7 +183,7 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter+1,
                     idNamePairs: payload.pairs,
                     isListNameEditActive: false,
-                    isItemEditActive: false,
+                    isItemEditActive: /*true*/false,
                     listMarkedForDeletion: null,
                     listCreated: true,
                     hasUndo: tps.hasTransactionToUndo(), 
