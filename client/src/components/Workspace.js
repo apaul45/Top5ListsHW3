@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import Top5Item from './Top5Item.js'
 import { GlobalStoreContext } from '../store'
@@ -11,8 +11,26 @@ import { GlobalStoreContext } from '../store'
 function Workspace() {
     const { store } = useContext(GlobalStoreContext);
     store.history = useHistory();
-
-    let editItems = "";
+    let defaultArray = [1,2,3,4,5];
+    useEffect(()=>{
+        if (!store || !store.currentList){
+            store.history.push("/");
+            store.closeCurrentList();
+        }
+    });
+    let editItems =  
+    <div id="edit-items">
+    {
+        defaultArray.map((index) => (
+            <Top5Item 
+                id={'top5-item-' + (index+1)}
+                key={'top5-item-' + (index+1)}
+                text={""}
+                index={index} 
+            />
+        ))
+    }
+    </div>;     
     if (store.currentList) {
         editItems = 
             <div id="edit-items">
